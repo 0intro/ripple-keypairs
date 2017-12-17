@@ -13,9 +13,10 @@ import (
 )
 
 var (
-	prefix   = flag.String("prefix", "", "prefix")
-	seed     = flag.String("seed", "", "seed")
-	nWorkers = flag.Int("n", 1, "number of workers")
+	prefix     = flag.String("prefix", "", "prefix")
+	seed       = flag.String("seed", "", "seed")
+	passphrase = flag.String("passphrase", "", "passphrase")
+	nWorkers   = flag.Int("n", 1, "number of workers")
 )
 
 func usage() {
@@ -30,11 +31,11 @@ func main() {
 		usage()
 	}
 
-	if *prefix != "" && *seed != "" {
+	if *seed != "" && *passphrase != "" || *seed != "" && *prefix != "" || *passphrase != "" && *prefix != "" {
 		usage()
 	}
 
-	if *prefix == "" && *seed == "" {
+	if *seed == "" && *passphrase == "" && *prefix == "" {
 		err := generateKeyPairRandom()
 		if err != nil {
 			log.Fatal(err)
@@ -43,6 +44,13 @@ func main() {
 
 	if *seed != "" {
 		err := generateKeyPairSeed(*seed)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if *passphrase != "" {
+		err := generateKeyPairPassphrase(*passphrase)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -94,6 +102,25 @@ func generateKeyPairRandom() error {
 
 func generateKeyPairSeed(s string) error {
 	seed, err := crypto.NewRippleHash(s)
+	if err != nil {
+		return err
+	}
+
+	key, err := crypto.NewECDSAKey(seed.Payload())
+	if err != nil {
+		return err
+	}
+
+	err = printKeys(seed, key)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func generateKeyPairPassphrase(s string) error {
+	seed, err := crypto.GenerateFamilySeed(s)
 	if err != nil {
 		return err
 	}

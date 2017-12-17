@@ -39,6 +39,18 @@ AccountPublicKey aB43KJd1aqcYs7ZfBkgq1s9w6HeCyhDRE5KudgzXK5J7NzMNvDBQ
 AccountPrivateKey pwrjcMKBrvufQDHeUUkjeaduLK9mcorHRKUqT4AJDzVH7cBikwf
 ```
 
+Generate a Ripple key pair from the specified passphrase:
+
+```
+$ ripple-keypairs -passphrase mypassphrase
+Seed (secret key) sh1jjZfNgjhjdE8i2HLQwteq5q1hC
+AccountID rnax9Jx4ktMEaga7xg8mNFmYt5eHdmwv7R
+NodePublicKey n9KuM9EaJFCzh6neVxvKw4jVT8cE8o5XF4tAQQFrVhVX9jvi45qr
+NodePrivateKey pnJ88kscAxhAYqqmAHgbnCnR7rKXix3qVWR8ZMfAAuVZGrpUGfc
+AccountPublicKey aB4fHbwLrh8EZu6kaaHejS1fW24wjk8SVUNP74a44U5HQVVe8R7B
+AccountPrivateKey p9qhMbT5N4BnpKJ1ge4Shq1T3n8HmQe6VADbu8Wr1kSiFio4UZz
+```
+
 Generate a Ripple key pair with an account ID beginning by the specified prefix (with 4 workers):
 
 ```
