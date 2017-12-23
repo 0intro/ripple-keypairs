@@ -16,6 +16,7 @@ var (
 	prefix     = flag.String("prefix", "", "prefix")
 	seed       = flag.String("seed", "", "seed")
 	passphrase = flag.String("passphrase", "", "passphrase")
+	ed25519key = flag.Bool("ed25519", false, "create an Ed25519 key")
 	nWorkers   = flag.Int("n", 1, "number of workers")
 )
 
@@ -87,7 +88,7 @@ func generateKeyPairRandom() error {
 		return err
 	}
 
-	key, err := crypto.NewECDSAKey(seed.Payload())
+	key, err := newKey(seed)
 	if err != nil {
 		return err
 	}
@@ -106,7 +107,7 @@ func generateKeyPairSeed(s string) error {
 		return err
 	}
 
-	key, err := crypto.NewECDSAKey(seed.Payload())
+	key, err := newKey(seed)
 	if err != nil {
 		return err
 	}
@@ -125,7 +126,7 @@ func generateKeyPairPassphrase(s string) error {
 		return err
 	}
 
-	key, err := crypto.NewECDSAKey(seed.Payload())
+	key, err := newKey(seed)
 	if err != nil {
 		return err
 	}
@@ -152,7 +153,7 @@ func generateKeyPairPrefix(prefix string) error {
 		if err != nil {
 			return err
 		}
-		key, err = crypto.NewECDSAKey(seed.Payload())
+		key, err := newKey(seed)
 		if err != nil {
 			return err
 		}
@@ -180,7 +181,7 @@ func generateKeyPairPrefixParallel(prefix string) error {
 	go mainWorker(bytes)
 
 	for seed := range results {
-		key, err := crypto.NewECDSAKey(seed.Payload())
+		key, err := newKey(seed)
 		if err != nil {
 			return err
 		}
@@ -196,7 +197,7 @@ func generateKeyPairPrefixParallel(prefix string) error {
 
 func keyHasPrefix(key crypto.Key, prefix string) bool {
 	var sequenceZero uint32
-	accountId, err := crypto.AccountId(key, &sequenceZero)
+	accountId, err := newAccountId(key, &sequenceZero)
 	if err != nil {
 		return false
 	}
@@ -222,7 +223,7 @@ func worker(id int, bytes <-chan []byte, results chan<- crypto.Hash, prefix stri
 			log.Println(err)
 			continue
 		}
-		key, err := crypto.NewECDSAKey(seed.Payload())
+		key, err := newKey(seed)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -238,11 +239,15 @@ func printKeys(seed crypto.Hash, key crypto.Key) error {
 
 	var sequenceZero uint32
 
-	accountId, err := crypto.AccountId(key, &sequenceZero)
+	accountId, err := newAccountId(key, &sequenceZero)
 	if err != nil {
 		return err
 	}
 	fmt.Println("AccountID", accountId)
+
+	if *ed25519key {
+		return nil
+	}
 
 	nodePublicKey, err := crypto.NodePublicKey(key)
 	if err != nil {
@@ -286,4 +291,18 @@ func isValidPrefix(prefix string) bool {
 		}
 	}
 	return true
+}
+
+func newKey(seed crypto.Hash) (crypto.Key, error) {
+	if *ed25519key {
+		return crypto.NewEd25519Key(seed.Payload())
+	}
+	return crypto.NewECDSAKey(seed.Payload())
+}
+
+func newAccountId(key crypto.Key, sequence *uint32) (crypto.Hash, error) {
+	if *ed25519key {
+		return crypto.AccountId(key, nil)
+	}
+	return crypto.AccountId(key, sequence)
 }
