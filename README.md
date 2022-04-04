@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/0intro/ripple-keypairs.svg?branch=master)](https://travis-ci.org/0intro/ripple-keypairs)
+[![Build Status](https://github.com/0intro/ripple-keypairs/workflows/Go/badge.svg)](https://github.com/0intro/ripple-keypairs/actions/workflows/go.yml)
 
 Ripple-KeyPairs
 ===============
